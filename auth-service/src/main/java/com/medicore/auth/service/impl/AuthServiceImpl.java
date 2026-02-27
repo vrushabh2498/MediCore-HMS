@@ -1,5 +1,6 @@
 package com.medicore.auth.service.impl;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,7 @@ import com.medicore.auth.dto.RegisterResponseDTO;
 import com.medicore.auth.entity.Role;
 import com.medicore.auth.entity.User;
 import com.medicore.auth.entity.UserRole;
+import com.medicore.auth.exception.UserAlreadyExistsException;
 import com.medicore.auth.repository.RoleRepository;
 import com.medicore.auth.repository.UserRepository;
 import com.medicore.auth.repository.UserRoleRepository;
@@ -38,14 +40,16 @@ public class AuthServiceImpl implements AuthService{
 	@Transactional
 	public ApiResponse<RegisterResponseDTO> registerUser(RegisterRequestDTO request) {
 		
-		
+		logger.info("Registration request received for username: {}", request.getUsername());
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+        	logger.warn("Duplicate username attempted: {}", request.getUsername());
+        	throw new UserAlreadyExistsException("Username already exists");
         }
 
        
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+        	logger.warn("Duplicate Email attempted: {}", request.getEmail());
+        	throw new UserAlreadyExistsException("Email already exists");
         }
 
         
@@ -75,12 +79,15 @@ public class AuthServiceImpl implements AuthService{
                         savedUser.getEmail()
                 );
         
-       
+        logger.info("User registered successfully with id: {}", savedUser.getId());
 	
 	 return new ApiResponse<>(
              "SUCCESS",
              "User registered successfully",
              responseDTO
+             
      );
 }
+	private static final Logger logger =
+	        LoggerFactory.getLogger(AuthServiceImpl.class);
 }
