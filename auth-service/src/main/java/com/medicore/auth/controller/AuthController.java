@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.medicore.auth.dto.ApiResponse;
-import com.medicore.auth.dto.LoginRequestDTO;
-import com.medicore.auth.dto.LoginResponseDTO;
 import com.medicore.auth.dto.RegisterRequestDTO;
 import com.medicore.auth.dto.RegisterResponseDTO;
 import com.medicore.auth.service.AuthService;
@@ -26,21 +24,12 @@ public class AuthController {
 	    }
 	    @PostMapping("/register")
 	    public ResponseEntity<ApiResponse<RegisterResponseDTO>> registerUser(
-	         @Valid @RequestBody RegisterRequestDTO request) {
+	         @Valid   @RequestBody RegisterRequestDTO request) {
 
 	        ApiResponse<RegisterResponseDTO> response =
 	                authService.registerUser(request);
 
 	        return ResponseEntity.ok(response);
-	    }
-	    
-	    
-	    @PostMapping("/login")
-	    public ResponseEntity<ApiResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO){
-	    	ApiResponse<LoginResponseDTO> response =
-	                authService.loginUser(loginRequestDTO);
-	    	
-	    	return ResponseEntity.ok(response);
 	    }
 
 }
