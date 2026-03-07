@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	
-	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
 	        MethodArgumentNotValidException ex) {
 		logger.warn("Validation failed: {}", ex);
@@ -58,14 +58,4 @@ public class GlobalExceptionHandler {
 	
 	private static final Logger logger =
 	        LoggerFactory.getLogger(GlobalExceptionHandler.class);
-	
-	@ExceptionHandler(InvalidCredentialsException.class)
-	public ResponseEntity<ApiResponse<Object>> handleInvalidCredentialsException(InvalidCredentialsException ex){
-		 logger.warn("Login failed: {}", ex.getMessage());	
-		 ApiResponse<Object> response =
-		            new ApiResponse<>("ERROR", "Invalid credentials", null);
-
-		    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-		
-	}
 }
