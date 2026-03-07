@@ -1,4 +1,6 @@
 package com.medicore.auth.service.impl;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,10 @@ import com.medicore.auth.service.AuthService;
 import jakarta.transaction.Transactional;
 @Service
 public class AuthServiceImpl implements AuthService{
+	
+	private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+
+	
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
@@ -78,25 +84,17 @@ public class AuthServiceImpl implements AuthService{
         
         userRoleRepository.save(userRole);
         
-        RegisterResponseDTO responseDTO =
-                new RegisterResponseDTO(
-                        savedUser.getId(),
-                        savedUser.getUsername(),
-                        savedUser.getEmail()
-                );
+        RegisterResponseDTO responseDTO = new RegisterResponseDTO(savedUser.getId(),savedUser.getUsername(),savedUser.getEmail());
         
-        logger.info("User registered successfully with id: {}", savedUser.getId());
+        logger.info("User registered successfully with id: ", savedUser.getId());
 	
-	 return new ApiResponse<>(
-             "SUCCESS",
+	 return new ApiResponse<>( "SUCCESS",
              "User registered successfully",
              responseDTO
              
      );
 }
-	private static final Logger logger =
-	        LoggerFactory.getLogger(AuthServiceImpl.class);
-
+	
 	@Override
 	public ApiResponse<LoginResponseDTO> loginUser(LoginRequestDTO request) {
 		logger.info("Login attempt for email: {}", request.getEmail());
@@ -122,7 +120,18 @@ public class AuthServiceImpl implements AuthService{
             }
 		
 		logger.info("User logged in successfully: {}", user.getEmail());
-		String token = jwtUtil.generateToken(user.getEmail());
+		
+		
+		List<String> roles = userRoleRepository.findByUser(user)
+		        .stream()
+		        .map(userRole -> userRole.getRole().getName())
+		        .toList();
+		
+		String token = jwtUtil.generateToken(
+		        user.getEmail(),
+		        user.getId(),
+		        roles
+		);
 		LoginResponseDTO responseDTO = new LoginResponseDTO(
 	            user.getId(),
 	            user.getEmail(),

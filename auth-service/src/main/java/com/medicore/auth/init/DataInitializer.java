@@ -18,19 +18,20 @@ public class DataInitializer implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		
-		 if (!roleRepository.existsByName("ROLE_USER")) {
-	            Role userRole = new Role();
-	            userRole.setName("ROLE_USER");
-	            userRole.setDescription("Default user role");
-	            roleRepository.save(userRole);
-	        }
-		 
-		 if (!roleRepository.existsByName("ROLE_ADMIN")) {
-	            Role adminRole = new Role();
-	            adminRole.setName("ROLE_ADMIN");
-	            adminRole.setDescription("Administrator role");
-	            roleRepository.save(adminRole);
-	        }
+		 createRoleIfNotExists("ROLE_ADMIN", "Administrator role");
+		    createRoleIfNotExists("ROLE_DOCTOR", "Doctor role");
+		    createRoleIfNotExists("ROLE_RECEPTIONIST", "Receptionist role");
+		    createRoleIfNotExists("ROLE_USER", "Default user role");
+		}
+
+	private void createRoleIfNotExists(String name, String description) {
+		if(!roleRepository.existsByName(name)) {
+			Role role=new Role();
+			role.setName(name);
+			role.setDescription(description);
+			roleRepository.save(role);
+		
+	}
 		
 	}
 
