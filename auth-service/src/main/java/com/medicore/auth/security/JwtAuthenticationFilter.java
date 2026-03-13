@@ -1,14 +1,17 @@
 package com.medicore.auth.security;
-
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,12 +21,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	
 	 private final JwtUtil jwtUtil;
-	    private final UserDetailsService userDetailsService;
+	   
 
-	    public JwtAuthenticationFilter(JwtUtil jwtUtil,
-	                                   UserDetailsService userDetailsService) {
+	    public JwtAuthenticationFilter(JwtUtil jwtUtil ) {
 	        this.jwtUtil = jwtUtil;
-	        this.userDetailsService = userDetailsService;
+	       
 	    }
 
 		@Override
@@ -31,34 +33,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 				FilterChain filterChain) throws ServletException, IOException {
 			final String authHeader = request.getHeader("Authorization");
 
-	        String email = null;
+	        
 	        String jwt = null;
 	        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+	        	
+	        	
 	            jwt = authHeader.substring(7);
-	            email = jwtUtil.extractEmail(jwt);
+	            
 	        }
 
-	        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+	        if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-	            var userDetails = userDetailsService.loadUserByUsername(email);
+	            Claims claims = jwtUtil.extractAllClaims(jwt);
 
-	            if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
+	            String email = claims.getSubject();
 
-	                var authenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
+	            List<String> roles = claims.get("roles", List.class);
 
-            authenticationToken.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-            );
+	            var authorities = roles.stream()
+	                    .map(SimpleGrantedAuthority::new)
+	                    .collect(Collectors.toList());
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        }
-    }
+	          
+	            	var authenticationToken =
+	                        new UsernamePasswordAuthenticationToken(
+	                                email,
+	                                null,
+	                                authorities
+	                        );
 
-    filterChain.doFilter(request, response);
+	            	 authenticationToken.setDetails(
+	                         new WebAuthenticationDetailsSource().buildDetails(request)
+	                 );
+
+	                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+	             }
+
+	             filterChain.doFilter(request, response);
 }
 			
 		
