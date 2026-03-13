@@ -35,7 +35,7 @@ public class PatientRequestDTO {
 
 	    @NotBlank(message = "Phone number is required")
 	    @Size(max = 15)
-	    private Long phoneNumber;
+	    private String phoneNumber;
 
 	    @Email(message = "Invalid email format")
 	    private String email;
@@ -46,6 +46,6 @@ public class PatientRequestDTO {
 
 	    private String emergencyContactName;
 
-	    private Long emergencyContactPhone;
+	    private String emergencyContactPhone;
 
 }

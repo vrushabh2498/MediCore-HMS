@@ -49,7 +49,7 @@ public class Patient {
 	
 	 @NotBlank(message = "Phone number is required")
 	    @Column(nullable = false, length = 15)
-	private Long phoneNumber;
+	private String phoneNumber;
 	
 	 @Email(message = "Invalid email format")
 	    @Column(unique = true, length = 100)
@@ -65,7 +65,7 @@ public class Patient {
 	private String  emergencyContactName;
 	
 	 @Column(length = 15)
-	private Long emergencyContactPhone;
+	private String emergencyContactPhone;
 	
 	 @Column(nullable = false)
 	private Long createdByUserId;

@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.medicore.patient.dto.ApiResponse;
@@ -101,8 +103,68 @@ public class PatientServiceImpl implements PatientService {
 	            responseDTO
 	    );
 	}
+
+	@Override
+	public PatientResponseDTO updatePatient(Long id, PatientRequestDTO request) {
+		logger.info("Fetching patient with id ");
+		Patient patient=patientRepository.findById(id).orElseThrow(()->new PatientNotFound("Patient Not Found"));
+		patient.setFirstName(request.getFirstName());
+	    patient.setLastName(request.getLastName());
+	    patient.setDateOfBirth(request.getDateOfBirth());
+	    patient.setGender(request.getGender());
+	    patient.setPhoneNumber(request.getPhoneNumber());
+	    patient.setEmail(request.getEmail());
+	    patient.setAddress(request.getAddress());
+	    patient.setBloodGroup(request.getBloodGroup());
+	    patient.setEmergencyContactName(request.getEmergencyContactName());
+	    patient.setEmergencyContactPhone(request.getEmergencyContactPhone());
+	    logger.info("Saving the patient ");
+	    Patient updatedPatient=patientRepository.save(patient);
+	    logger.info("return the response");
+	    PatientResponseDTO responseDTO = mapToResponseDTO(patient);
+	    return responseDTO;
+	}
+
+	@Override
+	public void deletePatient(Long id) {
+
+	    Patient patient = patientRepository.findById(id)
+	            .orElseThrow(() -> new PatientNotFound("Patient not found"));
+
+	    patient.setActive(false);
+
+	    patientRepository.save(patient);
+	}
+
+	
+	@Override
+	public Page<PatientResponseDTO> getPatientsWithPagination(int page, int size) {
+
+	    PageRequest pageable = PageRequest.of(page, size);
+
+	    Page<Patient> patientPage = patientRepository.findAll(pageable);
+
+	    return patientPage.map(patient -> {
+	        PatientResponseDTO dto = new PatientResponseDTO();
+
+	        dto.setId(patient.getId());
+	        dto.setFirstName(patient.getFirstName());
+	        dto.setLastName(patient.getLastName());
+	        dto.setEmail(patient.getEmail());
+	        dto.setPhoneNumber(patient.getPhoneNumber());
+	        dto.setGender(patient.getGender());
+	        dto.setBloodGroup(patient.getBloodGroup());
+	        dto.setDateOfBirth(patient.getDateOfBirth());
+	        dto.setAddress(patient.getAddress());
+
+	        return dto;
+	    });
+	}
+		
+		
+	}
 	
 	
 	
 
-}
+

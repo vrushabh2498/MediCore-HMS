@@ -21,7 +21,7 @@ public class PatientResponseDTO {
 	        String firstName,
 	        String lastName,
 	        String email,
-	        Long phoneNumber,
+	        String phoneNumber,
 	        Gender gender,
 	        BloodGroup bloodGroup,
 	        LocalDate dateOfBirth,
@@ -37,12 +37,13 @@ public class PatientResponseDTO {
 	    this.dateOfBirth = dateOfBirth;
 	    this.address = address;
 	}
+	
 	private Long id;
 	    private String firstName;
 	    private String lastName;
 	    private LocalDate dateOfBirth;
 	    private Gender gender;
-	    private Long phoneNumber;
+	    private String phoneNumber;
 	    private String email;
 	    private String address;
 	    private BloodGroup bloodGroup;
